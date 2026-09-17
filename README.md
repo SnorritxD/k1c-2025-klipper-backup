@@ -18,7 +18,7 @@ The author and contributors are not responsible or liable for any damage, data l
 ## Prerequisites
 
 Before running the installer, ensure you have:
-1. Root Access & Helper Script: Root access enabled on your K1C with Creality Helper Script 2025 (https://github.com/C0DEbrained/Creality-Helper-Script-2025) and Entware support.
+1. Root Access & Helper Script: Root access enabled on your K1C with Creality Helper Script 2025 https://github.com/C0DEbrained/Creality-Helper-Script-2025 and Entware support.
 2. gcode_shell_command: Installed on your printer via the Creality Helper Script 2025 menu.
 3. GitHub Personal Access Token (PAT): Generated on GitHub under Settings -> Developer Settings -> Personal Access Tokens (Classic) with repo scope enabled.
 4. GitHub Repository: An empty repository created on your GitHub account (e.g., k1c-2025-klipper-backup).
@@ -47,27 +47,21 @@ The setup configures three core components inside /usr/data/printer_data/config:
    .DS_Store
    printer-*.cfg
 
-2. git_backup.sh — A shell script tailored for Creality OS that checks for file changes, commits them with a timestamp, and pushes to main:
+2. git_backup.sh — A shell script tailored for Creality OS that checks for file changes, commits them with a timestamp, and pushes to main using runtime configuration flags:
    #!/bin/sh
    export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
    export HOME=/usr/data
 
    cd /usr/data/printer_data/config || exit 1
 
-   git config --global --add safe.directory /usr/data/printer_data/config 2>/dev/null
+   git -c safe.directory=/usr/data/printer_data/config add .
+   git -c safe.directory=/usr/data/printer_data/config commit -m "Klipper backup $(date +'%Y-%m-%d %H:%M:%S')"
 
-   if [ -n "$(git status --porcelain)" ]; then
-       echo "Changes detected, uploading..."
-       git add .
-       git commit -m "Auto-backup: $(date +'%Y-%m-%d %H:%M:%S')"
-       if git push origin main; then
-           echo "Backup completed successfully!"
-       else
-           echo "Error during git push."
-           exit 1
-       fi
+   if git -c safe.directory=/usr/data/printer_data/config push origin main; then
+       echo "Backup succesvol gepusht naar GitHub!"
    else
-       echo "No changes detected."
+       echo "Geen wijzigingen om te pushen of fout bij versturen."
+       exit 1
    fi
 
 3. printer.cfg Macro Integration — Adds the shell execution macro to Klipper:
