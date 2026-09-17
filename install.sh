@@ -59,20 +59,14 @@ export HOME=/usr/data
 
 cd /usr/data/printer_data/config || exit 1
 
-git config --global --add safe.directory /usr/data/printer_data/config 2>/dev/null
+git -c safe.directory=/usr/data/printer_data/config add .
+git -c safe.directory=/usr/data/printer_data/config commit -m "Klipper backup $(date +'%Y-%m-%d %H:%M:%S')"
 
-if [ -n "$(git status --porcelain)" ]; then
-    echo "Changes detected, uploading..."
-    git add .
-    git commit -m "Auto-backup: $(date +'%Y-%m-%d %H:%M:%S')"
-    if git push origin main; then
-        echo "Backup completed successfully!"
-    else
-        echo "Error during git push."
-        exit 1
-    fi
+if git -c safe.directory=/usr/data/printer_data/config push origin main; then
+    echo "Backup succesvol gepusht naar GitHub!"
 else
-    echo "No changes detected."
+    echo "Geen wijzigingen om te pushen of fout bij versturen."
+    exit 1
 fi
 EOF
 
@@ -100,7 +94,6 @@ fi
 
 echo "[4/5] Configuring Git..."
 git init
-git config --global --add safe.directory /usr/data/printer_data/config
 git config user.name "$GH_USER"
 git config user.email "$GH_EMAIL"
 git remote remove origin 2>/dev/null
@@ -108,9 +101,9 @@ git remote add origin "https://${GH_USER}:${GH_TOKEN}@github.com/${GH_USER}/${GH
 git branch -M main
 
 echo "[5/5] Running initial backup & granting permissions..."
-git add .
-git commit -m "Initial Creality K1C (2025) auto-backup"
-git push -u origin main
+git -c safe.directory=/usr/data/printer_data/config add .
+git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C (2025) auto-backup"
+git -c safe.directory=/usr/data/printer_data/config push -u origin main
 
 # Geef Klipper schrijfrechten op de .git map om index.lock fouten te voorkomen
 chmod -R 777 .git
