@@ -18,8 +18,8 @@ The author and contributors are not responsible or liable for any damage, data l
 ## Prerequisites
 
 Before running the installer, ensure you have:
-1. Root Access & Helper Script: Root access enabled on your K1C with Guilouz Helper Script / Entware support.
-2. gcode_shell_command: Installed on your printer (via Creality Helper Script / KIAUH).
+1. Root Access & Helper Script: Root access enabled on your K1C with Creality Helper Script 2025 (https://github.com/C0DEbrained/Creality-Helper-Script-2025) and Entware support.
+2. gcode_shell_command: Installed on your printer via the Creality Helper Script 2025 menu.
 3. GitHub Personal Access Token (PAT): Generated on GitHub under Settings -> Developer Settings -> Personal Access Tokens (Classic) with repo scope enabled.
 4. GitHub Repository: An empty repository created on your GitHub account (e.g., k1c-2025-klipper-backup).
 
