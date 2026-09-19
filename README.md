@@ -27,7 +27,9 @@ Before running the installer, ensure you have:
 
 Log in to your printer via SSH (ssh root@<PRINTER_IP>) and run the following command:
 
+```bash
 curl -sSL -O https://raw.githubusercontent.com/SnorritxD/k1c-2025-klipper-backup/main/install.sh && sh install.sh && rm install.sh
+```
 
 The interactive script will prompt you for:
 - GitHub Username (e.g., SnorritxD)
