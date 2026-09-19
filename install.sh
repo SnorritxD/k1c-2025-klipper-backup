@@ -48,6 +48,7 @@ cat << 'EOF' > .gitignore
 *.log
 database.sqlite*
 .DS_Store
+printer-*.cfg
 EOF
 
 echo "[2/5] Creating backup script (git_backup.sh)..."
@@ -96,21 +97,24 @@ else
 fi
 
 echo "[4/5] Configuring Git repository..."
+# Eerst de directory als veilig markeren om "dubious ownership" te voorkomen
+git config --global --add safe.directory /usr/data/printer_data/config
+git config --global --add safe.directory '*'
+
 if [ ! -d ".git" ]; then
     git init
 fi
 
 git config user.name "$GH_USER"
 git config user.email "$GH_EMAIL"
-git config safe.directory /usr/data/printer_data/config
 git remote remove origin 2>/dev/null
 git remote add origin "https://${GH_USER}:${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git"
 git branch -M main
 
 echo "[5/5] Running initial backup & setting permissions..."
-git add .
-git commit -m "Initial Creality K1C auto-backup"
-git push -u origin main
+git -c safe.directory=/usr/data/printer_data/config add .
+git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
+git -c safe.directory=/usr/data/printer_data/config push -u origin main
 
 # Geef Klipper schrijfrechten op de .git map om index.lock fouten te voorkomen
 chmod -R 777 .git
