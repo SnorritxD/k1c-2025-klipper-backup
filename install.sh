@@ -13,7 +13,7 @@ export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
 export HOME=/usr/data
 
 echo "=========================================="
-echo " Creality K1C GitHub Backup Installer"
+echo " Creality K1C (2025 Model) GitHub Backup Installer"
 echo "=========================================="
 echo ""
 
@@ -74,7 +74,7 @@ echo "[3/5] Adding Klipper macro to printer.cfg..."
 if [ -f "printer.cfg" ]; then
     if ! grep -q "BACKUP_GITHUB" printer.cfg; then
         MACRO_BLOCK='[gcode_macro BACKUP_GITHUB]
-description: Backs up Klipper configuration to GitHub
+description: Backs up Klipper configuration to GitHub (Creality K1C 2025 Model)
 gcode:
     RUN_SHELL_COMMAND CMD=git_backup_script
 
@@ -120,7 +120,7 @@ git branch -M main
 
 echo "[5/5] Running initial backup and setting permissions..."
 git -c safe.directory=/usr/data/printer_data/config add .
-git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
+git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C (2025 Model) auto-backup"
 
 # Force push to overwrite empty remote or conflict files smoothly
 git -c safe.directory=/usr/data/printer_data/config push -u origin main --force
@@ -131,6 +131,7 @@ chmod -R 777 .git
 echo ""
 echo "=========================================="
 echo " Installation completed successfully!"
+echo " Creality K1C (2025 Model) backup active."
 echo " Note: Moonraker update manager was skipped"
 echo " to prevent file-locking issues in Fluidd."
 echo " Restart Klipper to activate the macro."
