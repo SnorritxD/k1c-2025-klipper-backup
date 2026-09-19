@@ -73,8 +73,7 @@ sed -i 's/\r$//' git_backup.sh
 echo "[3/5] Adding Klipper macro to printer.cfg..."
 if [ -f "printer.cfg" ]; then
     if ! grep -q "BACKUP_GITHUB" printer.cfg; then
-        cat << 'EOF' >> printer.cfg
-
+        MACRO_BLOCK='
 [gcode_macro BACKUP_GITHUB]
 description: Backs up Klipper configuration to GitHub
 gcode:
@@ -84,8 +83,15 @@ gcode:
 command: sh /usr/data/printer_data/config/git_backup.sh
 timeout: 30.0
 verbose: True
-EOF
-        echo "Macro successfully added to printer.cfg."
+'
+        # Plaats de macro veilig bóven het SAVE_CONFIG blok indien aanwezig
+        if grep -q "SAVE_CONFIG" printer.cfg; then
+            sed -i "/#*# <---------------------- SAVE_CONFIG ---------------------->/i $MACRO_BLOCK" printer.cfg
+            echo "Macro successfully inserted above SAVE_CONFIG in printer.cfg."
+        else
+            echo "$MACRO_BLOCK" >> printer.cfg
+            echo "Macro successfully added to the end of printer.cfg."
+        fi
     else
         echo "Macro is already present in printer.cfg."
     fi
@@ -101,6 +107,9 @@ if [ ! -d ".git" ]; then
     git init
 fi
 
+# Zorg dat de .git map vanaf begin volledig beschrijfbaar is voor Klipper/root
+chmod -R 777 .git
+
 git config user.name "$GH_USER"
 git config user.email "$GH_EMAIL"
 git remote remove origin 2>/dev/null
@@ -110,8 +119,11 @@ git branch -M main
 echo "[5/5] Running initial backup and setting permissions..."
 git -c safe.directory=/usr/data/printer_data/config add .
 git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
-git -c safe.directory=/usr/data/printer_data/config push -u origin main
 
+# Force push om eventuele lege remote / conflict bestanden probleemloos te overschrijven
+git -c safe.directory=/usr/data/printer_data/config push -u origin main --force
+
+# Definitief alle rechten openzetten voor de servicegebruiker
 chmod -R 777 .git
 
 echo ""
