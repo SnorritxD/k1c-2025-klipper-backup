@@ -9,7 +9,6 @@ fi
 
 cd "$CONFIG_DIR" || exit 1
 
-# Omgeving instellen voor Entware Git & Klipper rechten
 export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
 export HOME=/usr/data
 
@@ -18,22 +17,20 @@ echo " Creality K1C GitHub Backup Installer"
 echo "=========================================="
 echo ""
 
-# Controleer of Git beschikbaar is, zo niet: installeer via Entware
 if ! command -v git >/dev/null 2>&1; then
     echo "[!] Git niet gevonden. Bezig met installeren via opkg..."
     opkg update
     opkg install git git-http
     if ! command -v git >/dev/null 2>&1; then
-        echo "Error: Git kon niet worden geïnstalleerd. Zorg dat Entware actief is."
+        echo "Error: Git kon niet worden geinstalleerd. Zorg dat Entware actief is."
         exit 1
     fi
 fi
 
-# Input vragen
 read -p "GitHub Username: " GH_USER
 read -p "GitHub Email Address: " GH_EMAIL
 read -p "GitHub Repository Name: " GH_REPO
-read -p "Personal Access Token (PAT): " GH_TOKEN
+read -p "Personal Access Token PAT: " GH_TOKEN
 
 if [ -z "$GH_USER" ] || [ -z "$GH_EMAIL" ] || [ -z "$GH_REPO" ] || [ -z "$GH_TOKEN" ]; then
     echo "Error: Alle velden zijn verplicht."
@@ -51,7 +48,7 @@ database.sqlite*
 printer-*.cfg
 EOF
 
-echo "[2/5] Creating backup script (git_backup.sh)..."
+echo "[2/5] Creating backup script..."
 cat << 'EOF' > git_backup.sh
 #!/bin/sh
 export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
@@ -97,7 +94,6 @@ else
 fi
 
 echo "[4/5] Configuring Git repository..."
-# Eerst de directory als veilig markeren om "dubious ownership" te voorkomen
 git config --global --add safe.directory /usr/data/printer_data/config
 git config --global --add safe.directory '*'
 
@@ -111,17 +107,16 @@ git remote remove origin 2>/dev/null
 git remote add origin "https://${GH_USER}:${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git"
 git branch -M main
 
-echo "[5/5] Running initial backup & setting permissions..."
+echo "[5/5] Running initial backup and setting permissions..."
 git -c safe.directory=/usr/data/printer_data/config add .
 git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
 git -c safe.directory=/usr/data/printer_data/config push -u origin main
 
-# Geef Klipper schrijfrechten op de .git map om index.lock fouten te voorkomen
 chmod -R 777 .git
 
 echo ""
 echo "=========================================="
 echo " Installatie succesvol afgerond!"
-echo " Let op: Zorg dat 'gcode_shell_command' geïnstalleerd is."
+echo " Let op: Zorg dat gcode_shell_command geinstalleerd is."
 echo " Herstart Klipper/Fluidd/Mainsail om de macro te activeren."
 echo "=========================================="
