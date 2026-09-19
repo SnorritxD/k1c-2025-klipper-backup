@@ -14,7 +14,7 @@ export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
 export HOME=/usr/data
 
 echo "=========================================="
-echo " Creality K1C (2025) GitHub Backup Installer"
+echo " Creality K1C GitHub Backup Installer"
 echo "=========================================="
 echo ""
 
@@ -24,19 +24,19 @@ if ! command -v git >/dev/null 2>&1; then
     opkg update
     opkg install git git-http
     if ! command -v git >/dev/null 2>&1; then
-        echo "Error: Git kon niet worden geïnstalleerd. Installeer eerst Entware."
+        echo "Error: Git kon niet worden geïnstalleerd. Zorg dat Entware actief is."
         exit 1
     fi
 fi
 
-# Prompt for user input
+# Input vragen
 read -p "GitHub Username: " GH_USER
 read -p "GitHub Email Address: " GH_EMAIL
 read -p "GitHub Repository Name: " GH_REPO
 read -p "Personal Access Token (PAT): " GH_TOKEN
 
 if [ -z "$GH_USER" ] || [ -z "$GH_EMAIL" ] || [ -z "$GH_REPO" ] || [ -z "$GH_TOKEN" ]; then
-    echo "Error: All fields are required."
+    echo "Error: Alle velden zijn verplicht."
     exit 1
 fi
 
@@ -48,7 +48,6 @@ cat << 'EOF' > .gitignore
 *.log
 database.sqlite*
 .DS_Store
-printer-*.cfg
 EOF
 
 echo "[2/5] Creating backup script (git_backup.sh)..."
@@ -74,8 +73,9 @@ chmod +x git_backup.sh
 sed -i 's/\r$//' git_backup.sh
 
 echo "[3/5] Adding Klipper macro to printer.cfg..."
-if ! grep -q "BACKUP_GITHUB" printer.cfg; then
-    cat << 'EOF' >> printer.cfg
+if [ -f "printer.cfg" ]; then
+    if ! grep -q "BACKUP_GITHUB" printer.cfg; then
+        cat << 'EOF' >> printer.cfg
 
 [gcode_macro BACKUP_GITHUB]
 description: Backs up Klipper configuration to GitHub
@@ -87,29 +87,37 @@ command: sh /usr/data/printer_data/config/git_backup.sh
 timeout: 30.0
 verbose: True
 EOF
-    echo "Macro added successfully."
+        echo "Macro succesvol toegevoegd aan printer.cfg."
+    else
+        echo "Macro is al aanwezig in printer.cfg."
+    fi
 else
-    echo "Macro is already present in printer.cfg."
+    echo "Waarschuwing: printer.cfg niet gevonden. Voeg de macro handmatig toe."
 fi
 
-echo "[4/5] Configuring Git..."
-git init
+echo "[4/5] Configuring Git repository..."
+if [ ! -d ".git" ]; then
+    git init
+fi
+
 git config user.name "$GH_USER"
 git config user.email "$GH_EMAIL"
+git config safe.directory /usr/data/printer_data/config
 git remote remove origin 2>/dev/null
 git remote add origin "https://${GH_USER}:${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git"
 git branch -M main
 
-echo "[5/5] Running initial backup & granting permissions..."
-git -c safe.directory=/usr/data/printer_data/config add .
-git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C (2025) auto-backup"
-git -c safe.directory=/usr/data/printer_data/config push -u origin main
+echo "[5/5] Running initial backup & setting permissions..."
+git add .
+git commit -m "Initial Creality K1C auto-backup"
+git push -u origin main
 
 # Geef Klipper schrijfrechten op de .git map om index.lock fouten te voorkomen
 chmod -R 777 .git
 
 echo ""
 echo "=========================================="
-echo " Installation completed successfully!"
-echo " Restart Klipper/Fluidd to activate the macro."
+echo " Installatie succesvol afgerond!"
+echo " Let op: Zorg dat 'gcode_shell_command' geïnstalleerd is."
+echo " Herstart Klipper/Fluidd/Mainsail om de macro te activeren."
 echo "=========================================="
