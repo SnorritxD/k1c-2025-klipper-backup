@@ -28,13 +28,11 @@ Before running the installer, ensure you have:
 
 Log in to your printer via SSH (`ssh root@<PRINTER_IP>`) and run the following commands:
 
-```bash
 cd /usr/data/printer_data/config
 wget --no-check-certificate https://raw.githubusercontent.com/SnorritxD/k1c-2025-klipper-backup/main/install.sh -O /tmp/install.sh
 sed -i 's/\r$//' /tmp/install.sh
 sh /tmp/install.sh
 rm /tmp/install.sh
-```
 
 The interactive script will prompt you for:
 - GitHub Username
@@ -46,10 +44,8 @@ The interactive script will prompt you for:
 
 If you already have a previous installation or need to start completely fresh, run these commands first before installing:
 
-```bash
 cd /usr/data/printer_data/config
 rm -rf .git git_backup.sh .gitignore
-```
 
 ## How It Works
 
@@ -72,6 +68,14 @@ Add the `BACKUP_GITHUB` command to your existing `PRINT_END` macro in `gcode_mac
 [gcode_macro PRINT_END]
 gcode:
     # ... your existing end gcode ...
+    BACKUP_GITHUB
+
+### Optional: Automatic Backup on Printer Startup / Reset
+Add this snippet to your `printer.cfg` (or `gcode_macro.cfg`) to automatically trigger a backup 10 seconds after boot or firmware restart:
+
+[delayed_gcode backup_on_startup]
+initial_duration: 10.0
+gcode:
     BACKUP_GITHUB
 
 ## License
