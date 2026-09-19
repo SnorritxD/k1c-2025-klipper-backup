@@ -38,7 +38,7 @@ if [ -z "$GH_USER" ] || [ -z "$GH_EMAIL" ] || [ -z "$GH_REPO" ] || [ -z "$GH_TOK
 fi
 
 echo ""
-echo "[1/6] Creating .gitignore..."
+echo "[1/5] Creating .gitignore..."
 cat << 'EOF' > .gitignore
 .git/
 *.bkp
@@ -48,7 +48,7 @@ database.sqlite*
 printer-*.cfg
 EOF
 
-echo "[2/6] Creating backup script..."
+echo "[2/5] Creating backup script..."
 cat << 'EOF' > git_backup.sh
 #!/bin/sh
 export PATH=/opt/bin:/opt/sbin:/usr/bin:/bin:$PATH
@@ -70,7 +70,7 @@ EOF
 chmod +x git_backup.sh
 sed -i 's/\r$//' git_backup.sh
 
-echo "[3/6] Adding Klipper macro to printer.cfg..."
+echo "[3/5] Adding Klipper macro to printer.cfg..."
 if [ -f "printer.cfg" ]; then
     if ! grep -q "BACKUP_GITHUB" printer.cfg; then
         MACRO_BLOCK='[gcode_macro BACKUP_GITHUB]
@@ -101,7 +101,7 @@ else
     echo "Warning: printer.cfg not found. Please add the macro manually."
 fi
 
-echo "[4/6] Configuring Git repository..."
+echo "[4/5] Configuring Git repository..."
 git config --global --add safe.directory /usr/data/printer_data/config
 git config --global --add safe.directory '*'
 
@@ -118,7 +118,7 @@ git remote remove origin 2>/dev/null
 git remote add origin "https://${GH_USER}:${GH_TOKEN}@github.com/${GH_USER}/${GH_REPO}.git"
 git branch -M main
 
-echo "[5/6] Running initial backup and setting permissions..."
+echo "[5/5] Running initial backup and setting permissions..."
 git -c safe.directory=/usr/data/printer_data/config add .
 git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
 
@@ -128,30 +128,10 @@ git -c safe.directory=/usr/data/printer_data/config push -u origin main --force
 # Definitief alle rechten openzetten voor de servicegebruiker
 chmod -R 777 .git
 
-echo "[6/6] Adding Moonraker update manager configuration..."
-if [ -f "moonraker.conf" ]; then
-    if ! grep -q "k1c-klipper-backup" moonraker.conf; then
-        cat << EOF >> moonraker.conf
-
-[update_manager k1c-klipper-backup]
-type: git_repo
-path: /usr/data/printer_data/config
-origin: https://github.com/${GH_USER}/${GH_REPO}.git
-primary_branch: main
-is_system_service: False
-managed_services: klipper
-EOF
-        echo "Moonraker update manager successfully added to moonraker.conf."
-    else
-        echo "Moonraker update manager is already configured in moonraker.conf."
-    fi
-else
-    echo "Warning: moonraker.conf not found. Skipping update manager configuration."
-fi
-
 echo ""
 echo "=========================================="
 echo " Installation completed successfully!"
-echo " Note: Make sure 'gcode_shell_command' is installed."
-echo " Restart Klipper/Fluidd/Mainsail to activate."
+echo " Note: Moonraker update manager was skipped"
+echo " to prevent file-locking/slotjes in Fluidd."
+echo " Restart Klipper to activate the macro."
 echo "=========================================="
