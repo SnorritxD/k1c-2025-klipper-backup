@@ -69,18 +69,22 @@ The setup configures three core components inside `/usr/data/printer_data/config
 ### Optional: Automatic Backup After Every Print
 Add the `BACKUP_GITHUB` command to your existing `PRINT_END` macro in `gcode_macro.cfg` or `printer.cfg`:
 
+```bash
 [gcode_macro PRINT_END]
 gcode:
     # ... your existing end gcode ...
     BACKUP_GITHUB
+```
 
 ### Optional: Automatic Backup on Printer Startup / Reset
 Add this snippet to your `printer.cfg` (or `gcode_macro.cfg`) to automatically trigger a backup 10 seconds after boot or firmware restart:
 
+```bash
 [delayed_gcode backup_on_startup]
 initial_duration: 10.0
 gcode:
     BACKUP_GITHUB
+```
 
 ## License
 
