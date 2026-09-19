@@ -83,7 +83,7 @@ command: sh /usr/data/printer_data/config/git_backup.sh
 timeout: 30.0
 verbose: True
 '
-        # Plaats de macro veilig bóven het SAVE_CONFIG blok met awk
+        # Safely place the macro above the SAVE_CONFIG block using awk
         if grep -q "SAVE_CONFIG" printer.cfg; then
             awk -v block="$MACRO_BLOCK" '
                 /#\*# <---------------------- SAVE_CONFIG ---------------------->/ { print block }
@@ -109,7 +109,7 @@ if [ ! -d ".git" ]; then
     git init
 fi
 
-# Zorg dat de .git map vanaf begin volledig beschrijfbaar is voor Klipper/root
+# Ensure the .git directory is fully writable from the start for Klipper/root
 chmod -R 777 .git
 
 git config user.name "$GH_USER"
@@ -122,16 +122,16 @@ echo "[5/5] Running initial backup and setting permissions..."
 git -c safe.directory=/usr/data/printer_data/config add .
 git -c safe.directory=/usr/data/printer_data/config commit -m "Initial Creality K1C auto-backup"
 
-# Force push om eventuele lege remote / conflict bestanden probleemloos te overschrijven
+# Force push to overwrite empty remote or conflict files smoothly
 git -c safe.directory=/usr/data/printer_data/config push -u origin main --force
 
-# Definitief alle rechten openzetten voor de servicegebruiker
+# Grant full permissions to ensure the service user has access
 chmod -R 777 .git
 
 echo ""
 echo "=========================================="
 echo " Installation completed successfully!"
 echo " Note: Moonraker update manager was skipped"
-echo " to prevent file-locking/slotjes in Fluidd."
+echo " to prevent file-locking issues in Fluidd."
 echo " Restart Klipper to activate the macro."
 echo "=========================================="
