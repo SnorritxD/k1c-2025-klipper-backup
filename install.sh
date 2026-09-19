@@ -18,11 +18,11 @@ echo "=========================================="
 echo ""
 
 if ! command -v git >/dev/null 2>&1; then
-    echo "[!] Git niet gevonden. Bezig met installeren via opkg..."
+    echo "[!] Git not found. Installing via opkg..."
     opkg update
     opkg install git git-http
     if ! command -v git >/dev/null 2>&1; then
-        echo "Error: Git kon niet worden geinstalleerd. Zorg dat Entware actief is."
+        echo "Error: Failed to install Git. Please ensure Entware is enabled."
         exit 1
     fi
 fi
@@ -33,7 +33,7 @@ read -p "GitHub Repository Name: " GH_REPO
 read -p "Personal Access Token PAT: " GH_TOKEN
 
 if [ -z "$GH_USER" ] || [ -z "$GH_EMAIL" ] || [ -z "$GH_REPO" ] || [ -z "$GH_TOKEN" ]; then
-    echo "Error: Alle velden zijn verplicht."
+    echo "Error: All fields are required."
     exit 1
 fi
 
@@ -60,9 +60,9 @@ git -c safe.directory=/usr/data/printer_data/config add .
 git -c safe.directory=/usr/data/printer_data/config commit -m "Klipper backup $(date +'%Y-%m-%d %H:%M:%S')"
 
 if git -c safe.directory=/usr/data/printer_data/config push origin main; then
-    echo "Backup succesvol gepusht naar GitHub!"
+    echo "Backup successfully pushed to GitHub!"
 else
-    echo "Geen wijzigingen om te pushen of fout bij versturen."
+    echo "No changes to push or an error occurred while pushing."
     exit 1
 fi
 EOF
@@ -85,12 +85,12 @@ command: sh /usr/data/printer_data/config/git_backup.sh
 timeout: 30.0
 verbose: True
 EOF
-        echo "Macro succesvol toegevoegd aan printer.cfg."
+        echo "Macro successfully added to printer.cfg."
     else
-        echo "Macro is al aanwezig in printer.cfg."
+        echo "Macro is already present in printer.cfg."
     fi
 else
-    echo "Waarschuwing: printer.cfg niet gevonden. Voeg de macro handmatig toe."
+    echo "Warning: printer.cfg not found. Please add the macro manually."
 fi
 
 echo "[4/5] Configuring Git repository..."
@@ -116,7 +116,7 @@ chmod -R 777 .git
 
 echo ""
 echo "=========================================="
-echo " Installatie succesvol afgerond!"
-echo " Let op: Zorg dat gcode_shell_command geinstalleerd is."
-echo " Herstart Klipper/Fluidd/Mainsail om de macro te activeren."
+echo " Installation completed successfully!"
+echo " Note: Make sure 'gcode_shell_command' is installed."
+echo " Restart Klipper/Fluidd/Mainsail to activate the macro."
 echo "=========================================="
