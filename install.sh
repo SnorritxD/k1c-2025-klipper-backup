@@ -73,8 +73,7 @@ sed -i 's/\r$//' git_backup.sh
 echo "[3/5] Adding Klipper macro to printer.cfg..."
 if [ -f "printer.cfg" ]; then
     if ! grep -q "BACKUP_GITHUB" printer.cfg; then
-        MACRO_BLOCK='
-[gcode_macro BACKUP_GITHUB]
+        MACRO_BLOCK='[gcode_macro BACKUP_GITHUB]
 description: Backs up Klipper configuration to GitHub
 gcode:
     RUN_SHELL_COMMAND CMD=git_backup_script
@@ -84,12 +83,15 @@ command: sh /usr/data/printer_data/config/git_backup.sh
 timeout: 30.0
 verbose: True
 '
-        # Plaats de macro veilig bóven het SAVE_CONFIG blok indien aanwezig
+        # Plaats de macro veilig bóven het SAVE_CONFIG blok met awk
         if grep -q "SAVE_CONFIG" printer.cfg; then
-            sed -i "/#*# <---------------------- SAVE_CONFIG ---------------------->/i $MACRO_BLOCK" printer.cfg
+            awk -v block="$MACRO_BLOCK" '
+                /#\*# <---------------------- SAVE_CONFIG ---------------------->/ { print block }
+                { print }
+            ' printer.cfg > printer.cfg.tmp && mv printer.cfg.tmp printer.cfg
             echo "Macro successfully inserted above SAVE_CONFIG in printer.cfg."
         else
-            echo "$MACRO_BLOCK" >> printer.cfg
+            printf "\n%s\n" "$MACRO_BLOCK" >> printer.cfg
             echo "Macro successfully added to the end of printer.cfg."
         fi
     else
