@@ -43,20 +43,16 @@ The installer does not install `gcode_shell_command` for you.
 
 ## 🚀 Quick installation
 
-Connect to your printer over SSH as `root`:
+Connect to your printer over SSH as `root` and run the following commands:
 
 ```sh
 cd /usr/data/printer_data/config
-
-wget --no-check-certificate \
-  https://raw.githubusercontent.com/SnorritxD/k1c-2025-klipper-backup/main/install.sh \
-  -O /tmp/install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/SnorritxD/k1c-2025-klipper-backup/main/install.sh -O /tmp/install.sh
 
 sed -i 's/\r$//' /tmp/install.sh
 
 sh /tmp/install.sh
-
-rm -f /tmp/install.sh
+rm /tmp/install.sh
 ```
 
 The installer prompts you for:
@@ -81,7 +77,7 @@ The installer configures the following files under `/usr/data/printer_data/confi
 | `printer.cfg`   | Receives the `BACKUP_GITHUB` macro if the installer finds the file and does not find the macro already present. |
 | `.git/`         | Stores the local Git repository, history, settings, and remote configuration.                                   |
 
-### 🧹 Files excluded from Git
+## 🧹 Files excluded from Git
 
 The installer creates this `.gitignore`:
 
@@ -103,7 +99,7 @@ These patterns exclude matching files from ordinary Git staging when they are no
 1. Open Fluidd or Mainsail.
 2. Find the `BACKUP_GITHUB` macro in the macro panel.
 3. Run the macro.
-4. Check the console output and the backup log or GitHub repository to confirm the result.
+4. Check the console output and your GitHub repository to confirm the result.
 
 You can also enter this command in the Klipper console:
 
@@ -184,7 +180,7 @@ After cleanup, rerunning the installer will initialize a new local Git repositor
 
 ## ⚖️ Disclaimer
 
-This project is provided **"as is"**, without warranty of any kind, express or implied. Use it at your own risk. The author and contributors are not responsible for data loss, overwritten remote history, exposed credentials, printer issues, or other damage resulting from use of this software.
+This project is provided **"as is"**, without warranty of any kind, express or implied. Use it at your own risk. The author and contributors are not responsible for data loss, overwritten remote history, exposed credentials, printer issues, or other damage resulting from use of this installer.
 
 ---
 
